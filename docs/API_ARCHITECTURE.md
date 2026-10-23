@@ -98,8 +98,10 @@ notamment l'entité `Tool`; il faut confirmer son équivalence avec `Equipment`.
 | --- | --- | --- |
 | `GET` | `/` | Message de bienvenue et environnement |
 | `GET` | `/api/v1/health` | État `ok` et environnement |
-| `POST` | `/api/v1/auth/register` | Crée un compte `USER` et retourne un JWT |
+| `POST` | `/api/v1/auth/register` | Crée le premier compte comme `ADMIN` sans authentification si aucun utilisateur n'existe; ensuite, `MANAGER` ou `ADMIN` requis |
 | `POST` | `/api/v1/auth/login` | Vérifie les identifiants et retourne un JWT |
+| `GET` | `/api/v1/auth/` | Liste les utilisateurs; authentification `MANAGER` ou `ADMIN` requise |
+| `DELETE` | `/api/v1/auth/` | Supprime tous les utilisateurs; authentification `ADMIN` requise |
 | `GET` | `/api/v1/me` | Retourne le profil associé au JWT Bearer |
 
 Les routeurs `/api/v1/auth`, `/installation`, `/stores`, `/equipment` et
@@ -128,8 +130,12 @@ docker compose -f docker-compose.yml up --build
 `config/swagger.js` contient les métadonnées OpenAPI, mais l'interface Swagger
 n'est pas encore servie par l'application.
 
-L'inscription attend `name`, `email` et `password` (8 caractères minimum);
-le rôle est attribué à `USER` et le mot de passe est haché avec bcrypt.
+L'inscription attend `name`, `email` et `password` (8 caractères minimum), et
+nécessite un JWT Bearer d'un compte `MANAGER` ou `ADMIN`. Un `MANAGER` peut
+uniquement créer des comptes `USER`; un `ADMIN` peut créer des comptes `USER`
+ou `MANAGER`. Si le rôle demandé est omis, il est attribué à `USER`. Le mot de
+passe est haché avec bcrypt. La connexion MongoDB de l'exemple utilise la base
+`toolshare`.
 Pour lire le profil, envoyer `Authorization: Bearer <token>`. Les JWT expirent
 après une heure.
 

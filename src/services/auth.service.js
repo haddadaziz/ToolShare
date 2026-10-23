@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs')
-const AppError = require('../utils/appError')
+const AppError = require('../utils/appError');
 
 const userRepository = require('../repositories/user.repository')
 const { signToken } = require('../utils/jwt.util')
@@ -21,12 +21,19 @@ function toPublicUser(user) {
         updatedAt: user.updatedAt
     }
 }
-
+async function getAllUsers() {
+    const users = await userRepository.getAllUsers()
+    return users.map(toPublicUser)
+}
 async function register(data) {
     const name = data.name
     const email = data.email
     const password = data.password
-
+    let role = data.role || 'USER'
+    const IsFirstUser = (await userRepository.countUsers()) === 0;
+  
+     if (IsFirstUser) { role = "ADMIN" }
+    
     if (!name || name.trim() === '') {
        
         throw new AppError('Le nom est obligatoire.',400)
@@ -45,6 +52,8 @@ async function register(data) {
 
     const cleanEmail = email.trim().toLowerCase()
 
+
+
     const existingUser = await userRepository.findByEmailWithPassword(cleanEmail)
   if (existingUser) {
    
@@ -56,7 +65,8 @@ async function register(data) {
     const user = await userRepository.create({
         name: name.trim(),
         email: cleanEmail,
-        password: hashedPassword
+        password: hashedPassword,
+        role
     })
 
     const token = signToken(user._id.toString())
@@ -97,4 +107,10 @@ async function login(data) {
     }
 }
 
-module.exports = { register, login, toPublicUser }
+async function deleteAllUsers() {
+    const result = await userRepository.deleteAllUsers()
+    return { deletedCount: result.deletedCount }
+}
+
+
+module.exports = { register, login, toPublicUser, getAllUsers, deleteAllUsers }

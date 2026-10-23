@@ -11,5 +11,16 @@ function findByEmailWithPassword(email) {
 function findById(id) {
     return User.findById(id)
 }
+function getAllUsers() {
+    return User.find({})
+}
 
-module.exports = { create, findByEmailWithPassword, findById }
+function countUsers() {
+  return User.countDocuments()
+}
+
+function deleteAllUsers() {
+    return User.deleteMany({})
+}
+
+module.exports = { create, countUsers,findByEmailWithPassword, findById, getAllUsers, deleteAllUsers }
