@@ -6,7 +6,7 @@ const router = express.Router()
 
 router.post('/register' ,authenticate, register)
 router.post('/login', login)
-router.get('/', authenticate, restrictTo('ADMIN', 'MANAGER'), getAllUsers)
-router.delete('/', authenticate, deleteAllUsers)
+router.get('/users', authenticate, restrictTo('ADMIN', 'MANAGER'), getAllUsers)
+
 
 module.exports = router

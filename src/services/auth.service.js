@@ -107,10 +107,7 @@ async function login(data) {
     }
 }
 
-async function deleteAllUsers() {
-    const result = await userRepository.deleteAllUsers()
-    return { deletedCount: result.deletedCount }
-}
 
 
-module.exports = { register, login, toPublicUser, getAllUsers, deleteAllUsers }
+
+module.exports = { register, login, toPublicUser, getAllUsers }
