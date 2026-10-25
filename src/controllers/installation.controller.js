@@ -13,7 +13,11 @@ class InstallationController{
 
     async install(req,res,next){
         try{
-            const {name,email}
+            const {name,email,password} = req.body
+
+            if (!name || !email || !password) {
+                const error
+            }
         }
     }
 }

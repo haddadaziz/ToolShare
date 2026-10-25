@@ -27,11 +27,11 @@ class InstallationService {
         session.startTransaction();
 
         try {
-            const admin = await UserRepository.createUser({
+            const admin = await UserRepository.create({
                 name,
                 email,
                 password: hashedPassword,
-                role: 'Admin',
+                role: 'ADMIN',
 
             }, session)
             const installation = await installationRepository.createInstallation({
