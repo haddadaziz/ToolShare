@@ -1,7 +1,8 @@
 const User = require('../models/user.model')
 
-function create(userData) {
-    return User.create(userData)
+async function create(userData,session = null) {
+    const user = new User(userData);
+    return await user.save({session});
 }
 
 function findByEmailWithPassword(email) {
