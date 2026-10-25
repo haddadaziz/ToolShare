@@ -62,6 +62,20 @@ class StoreController {
             next(e)
         }
     }
+
+    async assignManager(req,res,next){
+        try{
+            const{managerId} = req.body;
+
+            if(!managerId) throw new AppError('Le champ managerId est obligatoire',400);
+
+            const result = await storeService.assignManager(req.params.id,managerId);
+
+            res.status(200).json({status:'success',message:'gestionnaire affecte avec succes au magasin',data:result})
+        }catch(e){
+            next(e)
+        }
+    }
 }
 
 module.exports = new StoreController();

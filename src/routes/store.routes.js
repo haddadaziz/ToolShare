@@ -11,5 +11,6 @@ router.get('/:id',storeController.getById)
 router.post('/',restrictTo('ADMIN'),storeController.create);
 router.put('/:id',restrictTo('ADMIN'),storeController.update);
 router.patch('/:id/toggle-status',restrictTo('ADMIN'),storeController.toggleStatus);
+router.patch('/:id/assign-manager',restrictTo('ADMIN'),storeController.assignManager);
 
 module.exports = router
