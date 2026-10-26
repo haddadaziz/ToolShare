@@ -19,8 +19,8 @@ function countUsers() {
   return User.countDocuments()
 }
 
-function deleteAllUsers() {
-    return User.deleteMany({})
+function desactive(id,status) {
+    return User.findByIdAndUpdate({_id:id},{isActive:status})
 }
 
-module.exports = { create, countUsers,findByEmailWithPassword, findById, getAllUsers, deleteAllUsers }
+module.exports = { create, countUsers,findByEmailWithPassword, findById, getAllUsers, desactive }

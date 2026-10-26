@@ -25,6 +25,7 @@ async function getAllUsers() {
     const users = await userRepository.getAllUsers()
     return users.map(toPublicUser)
 }
+
 async function register(data) {
     const name = data.name
     const email = data.email
@@ -88,11 +89,14 @@ async function login(data) {
     const cleanEmail = email.trim().toLowerCase()
     const user = await userRepository.findByEmailWithPassword(cleanEmail)
 
-  if (!user || !user.isActive) {
+  if (!user ) {
     throw new AppError('Identifiants invalides.',401)
 
     }
+  if ( !user.isActive) {
+    throw new AppError('You are not active !! .',401)
 
+    }
     const passwordIsCorrect = await bcrypt.compare(password, user.password)
 
     if (!passwordIsCorrect) {
@@ -106,7 +110,6 @@ async function login(data) {
         user: toPublicUser(user)
     }
 }
-
 
 
 

@@ -37,9 +37,9 @@ async function getAllUsers(req, res) {
 
 }
 
-async function deleteAllUsers(req, res) {
-    const result = await authService.deleteAllUsers()
-    return res.status(200).json(result)
+async function desactive(req,res) {
+  const result = await userRepository.desactive(req.params.id, req.body.isActive);
+  return res.status(200).json(result)
 }
 
-module.exports = { register, login, getMe, getAllUsers, deleteAllUsers }
+module.exports = { register, login, getMe, getAllUsers, desactive }
