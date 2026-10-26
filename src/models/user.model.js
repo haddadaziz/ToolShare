@@ -27,7 +27,8 @@ const userSchema = new mongoose.Schema({
     storeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Store',
-        default: null
+        default: null,
+        index:true
     },
     isActive: {
         type: Boolean,
