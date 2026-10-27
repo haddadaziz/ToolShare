@@ -43,7 +43,7 @@ src/
   models/
     user.model.js
     store.model.js
-    equipment.model.js
+    tool.model.js
     reservation.model.js
     installation.model.js
   repositories/
@@ -87,10 +87,9 @@ tests/
   integration/
 ```
 
-Les fichiers métier marqués `TODO` ne sont pas des implémentations. Les schémas
-de User, Store, Equipment et Reservation et leurs règles doivent être définis à
-partir du modèle métier avant d'être activés. Le diagramme UML existant nomme
-notamment l'entité `Tool`; il faut confirmer son équivalence avec `Equipment`.
+Les schémas User, Store et Tool sont définis; les modules Reservation restent
+à implémenter. Le diagramme UML nomme la ressource `Tool`; le module HTTP
+`equipment` l'expose sous `/api/v1/tools`.
 
 ## Requêtes HTTP disponibles
 
@@ -104,8 +103,15 @@ notamment l'entité `Tool`; il faut confirmer son équivalence avec `Equipment`.
 | `DELETE` | `/api/v1/auth/` | Supprime tous les utilisateurs; authentification `ADMIN` requise |
 | `GET` | `/api/v1/me` | Retourne le profil associé au JWT Bearer |
 
-Les routeurs `/api/v1/auth`, `/installation`, `/stores`, `/equipment` et
-`/reservations` sont montés, mais ne définissent pas encore d'endpoints.
+Les routeurs `/api/v1/auth`, `/installation`, `/stores` et `/tools` sont
+montés. Le routeur `/reservations` reste à implémenter.
+
+Les endpoints `/api/v1/tools` requièrent un rôle `ADMIN` ou `MANAGER`.
+Les gestionnaires ne peuvent consulter et modifier que les matériels de leur
+magasin affecté. `GET /api/v1/tools` accepte les filtres `storeId`, `status`
+et `includeDisabled`; le filtre `storeId` est réservé à l'ADMIN.
+La désactivation est logique (`isActive: false`). Le statut métier accepte
+`DISPONIBLE`, `INDISPONIBLE` ou `HORS_SERVICE`.
 
 ## Démarrage et configuration
 
