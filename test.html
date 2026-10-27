@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="fr" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SELF — Soins & Cosmétiques Intelligents</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            self: {
+              ivory: '#FDFAF7',      // Fond ultra-lumineux tirant vers le blanc
+              warmwhite: '#F7F2ED',  // Cartes & champs
+              sand: '#EADBCE',       // Bordures & séparateurs doux
+              blush: '#F3D5C8',      // Accent rosé/pêche
+              terracotta: '#C87D65', // Primaire chaud (sous-tons chauds)
+              terracottaDark: '#A85F48',
+              deepBrown: '#2D1E18',  // Texte contrasté riche
+              muted: '#7A6B63'       // Texte secondaire
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            serif: ['"Playfair Display"', 'serif'],
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-full bg-self-ivory text-self-deepBrown font-sans antialiased">
+
+  <div class="min-h-screen w-full flex">
+    
+    <!-- PANNEAU GAUCHE : Branding & Univers Cosmétique (Visible sur Desktop / Tablette large) -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-gradient-to-br from-self-blush/30 via-self-sand/40 to-self-ivory flex-col justify-between p-12 border-r border-self-sand/60">
+      
+      <!-- Logo haut gauche -->
+      <div class="flex items-center gap-3">
+        <span class="w-8 h-8 rounded-full bg-self-terracotta flex items-center justify-center text-white font-serif font-bold text-lg shadow-sm">S</span>
+        <span class="font-serif text-2xl font-bold tracking-widest uppercase text-self-deepBrown">SELF</span>
+      </div>
+
+      <!-- Bloc central inspirant avec nuances cutanées -->
+      <div class="max-w-md space-y-6">
+        <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/80 border border-self-sand text-xs font-medium text-self-terracotta tracking-wide uppercase shadow-sm">
+          <span>Compatibilité & Routines</span>
+        </div>
+        <h1 class="text-4xl xl:text-5xl font-serif text-self-deepBrown leading-tight">
+          Chaque peau est unique. <span class="italic text-self-terracotta font-normal">Vos soins le méritent aussi.</span>
+        </h1>
+        <p class="text-self-muted text-sm leading-relaxed">
+          Analysez la synergie de vos actifs, prévenez les risques d'irritations et associez vos fonds de teint et soins sans fausse note.
+        </p>
+
+        <!-- Pastilles représentatives des sous-tons de carnation -->
+        <div class="pt-4">
+          <p class="text-xs font-semibold uppercase tracking-wider text-self-muted/80 mb-3">Conçu pour toutes les carnations & types de peau</p>
+          <div class="flex items-center gap-2">
+            <span class="w-7 h-7 rounded-full border-2 border-white shadow-sm" style="background-color: #F8ECE3;" title="Sous-ton très clair"></span>
+            <span class="w-7 h-7 rounded-full border-2 border-white shadow-sm" style="background-color: #ECD1BC;" title="Sous-ton clair"></span>
+            <span class="w-7 h-7 rounded-full border-2 border-white shadow-sm" style="background-color: #D3A783;" title="Sous-ton médium"></span>
+            <span class="w-7 h-7 rounded-full border-2 border-white shadow-sm" style="background-color: #9D6442;" title="Sous-ton mat/doré"></span>
+            <span class="w-7 h-7 rounded-full border-2 border-white shadow-sm" style="background-color: #593522;" title="Sous-ton foncé"></span>
+            <span class="text-xs text-self-muted ml-2 font-medium">100% neutre & inclusif</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="text-xs text-self-muted flex justify-between items-center">
+        <span>© 2026 SELF Skincare Technologies</span>
+        <span class="italic font-serif">Formule testée pour votre routine</span>
+      </div>
+    </div>
+
+    <!-- PANNEAU DROIT : Formulaire interactif (Connexion / Inscription / Diagnostic peau) -->
+    <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-10 md:p-14">
+      <div class="w-full max-w-md">
+
+        <!-- En-tête mobile (Logo affiché si écran < 1024px) -->
+        <div class="lg:hidden text-center mb-8">
+          <div class="inline-flex w-10 h-10 rounded-full bg-self-terracotta items-center justify-center text-white font-serif font-bold text-xl mb-2 shadow-sm">S</div>
+          <h2 class="font-serif text-2xl font-bold tracking-widest uppercase text-self-deepBrown">SELF</h2>
+          <p class="text-xs text-self-muted mt-1">Routines et compatibilités sur-mesure</p>
+        </div>
+
+        <!-- Onglets Connexion / Inscription -->
+        <div id="authTabs" class="flex p-1 mb-8 bg-self-warmwhite rounded-2xl border border-self-sand/80">
+          <button id="tabLogin" onclick="setAuthTab('login')" class="flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-deepBrown bg-white shadow-sm transition-all duration-200">
+            Se connecter
+          </button>
+          <button id="tabSignup" onclick="setAuthTab('signup')" class="flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-muted hover:text-self-deepBrown transition-all duration-200">
+            Créer un compte
+          </button>
+        </div>
+
+        <!-- ================= ÉCRAN 1 : CONNEXION ================= -->
+        <div id="loginForm" class="space-y-6">
+          <div>
+            <h3 class="text-2xl font-serif font-semibold text-self-deepBrown">Bon retour</h3>
+            <p class="text-xs text-self-muted mt-1">Retrouvez votre trousse virtuelle et l'état de votre routine.</p>
+          </div>
+
+          <form class="space-y-4" onsubmit="event.preventDefault();">
+            <div>
+              <label class="block text-xs font-medium text-self-deepBrown mb-1.5">Adresse e-mail</label>
+              <input type="email" placeholder="exemple@domaine.com" class="w-full px-4 py-3 bg-white text-sm rounded-xl border border-self-sand focus:outline-none focus:ring-2 focus:ring-self-terracotta/30 focus:border-self-terracotta transition placeholder:text-stone-400">
+            </div>
+
+            <div>
+              <div class="flex justify-between items-center mb-1.5">
+                <label class="block text-xs font-medium text-self-deepBrown">Mot de passe</label>
+                <a href="#" class="text-xs text-self-terracotta hover:underline font-medium">Mot de passe oublié ?</a>
+              </div>
+              <input type="password" placeholder="••••••••" class="w-full px-4 py-3 bg-white text-sm rounded-xl border border-self-sand focus:outline-none focus:ring-2 focus:ring-self-terracotta/30 focus:border-self-terracotta transition">
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-self-terracotta hover:bg-self-terracottaDark text-white font-medium text-sm rounded-xl shadow-md transition-all active:scale-[0.99]">
+              Connexion à mon espace
+            </button>
+          </form>
+
+          <div class="relative flex items-center justify-center my-6">
+            <div class="w-full border-t border-self-sand"></div>
+            <span class="px-3 bg-self-ivory text-[11px] text-self-muted uppercase tracking-wider font-medium">Ou avec</span>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <button type="button" class="flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-self-sand rounded-xl text-xs font-semibold text-self-deepBrown hover:bg-self-warmwhite transition">
+              <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.5 1 3.7 3.6 1.9 7.3l3.7 2.9C6.5 7.4 9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.7-.2-2.3H12v4.6h6.5c-.3 1.5-1.1 2.8-2.4 3.7l3.7 2.9c2.2-2 3.7-5 3.7-8.9z"/><path fill="#FBBC05" d="M5.6 14.8c-.2-.7-.4-1.5-.4-2.8s.2-2.1.4-2.8L1.9 6.3C.7 8.7 0 10.3 0 12s.7 3.3 1.9 5.7l3.7-2.9z"/><path fill="#34A853" d="M12 23c3.2 0 6-1.1 7.9-2.9l-3.7-2.9c-1.1.7-2.5 1.2-4.2 1.2-3 0-5.5-2.4-6.4-5.2L1.9 16.1C3.7 19.8 7.5 23 12 23z"/></svg>
+              Google
+            </button>
+            <button type="button" class="flex items-center justify-center gap-2 py-2.5 px-4 bg-white border border-self-sand rounded-xl text-xs font-semibold text-self-deepBrown hover:bg-self-warmwhite transition">
+              <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M15.97 6.36c.64-.78 1.08-1.86.96-2.95-.93.04-2.06.62-2.73 1.4-.58.67-1.09 1.77-.96 2.82 1.04.08 2.09-.5 2.73-1.27z"/></svg>
+              Apple
+            </button>
+          </div>
+        </div>
+
+        <!-- ================= ÉCRAN 2 : INSCRIPTION (COORDONNÉES) ================= -->
+        <div id="signupForm" class="hidden space-y-6">
+          <div>
+            <span class="text-[11px] font-bold text-self-terracotta uppercase tracking-wider">Étape 1 sur 2</span>
+            <h3 class="text-2xl font-serif font-semibold text-self-deepBrown mt-0.5">Commencer l'expérience</h3>
+            <p class="text-xs text-self-muted mt-1">Créez votre profil pour tester l'innocuité de vos produits.</p>
+          </div>
+
+          <form class="space-y-4" onsubmit="event.preventDefault(); proceedToSkinDiagnosis();">
+            <div>
+              <label class="block text-xs font-medium text-self-deepBrown mb-1.5">Nom ou prénom</label>
+              <input type="text" required placeholder="Ex. Camille" class="w-full px-4 py-3 bg-white text-sm rounded-xl border border-self-sand focus:outline-none focus:ring-2 focus:ring-self-terracotta/30 focus:border-self-terracotta transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-self-deepBrown mb-1.5">Adresse e-mail</label>
+              <input type="email" required placeholder="camille@exemple.com" class="w-full px-4 py-3 bg-white text-sm rounded-xl border border-self-sand focus:outline-none focus:ring-2 focus:ring-self-terracotta/30 focus:border-self-terracotta transition">
+            </div>
+
+            <div>
+              <label class="block text-xs font-medium text-self-deepBrown mb-1.5">Mot de passe</label>
+              <input type="password" required placeholder="8 caractères minimum" class="w-full px-4 py-3 bg-white text-sm rounded-xl border border-self-sand focus:outline-none focus:ring-2 focus:ring-self-terracotta/30 focus:border-self-terracotta transition">
+            </div>
+
+            <button type="submit" class="w-full py-3.5 bg-self-terracotta hover:bg-self-terracottaDark text-white font-medium text-sm rounded-xl shadow-md transition-all active:scale-[0.99]">
+              Continuer vers le profil de peau &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- ================= ÉCRAN 3 : PROFIL CUTANÉ (SELON CDC) ================= -->
+        <div id="skinForm" class="hidden space-y-5">
+          <div>
+            <div class="flex items-center justify-between">
+              <span class="text-[11px] font-bold text-self-terracotta uppercase tracking-wider">Étape 2 sur 2</span>
+              <button onclick="skipSkinDiagnosis()" class="text-xs text-self-muted hover:text-self-deepBrown underline">Passer pour l'instant</button>
+            </div>
+            <h3 class="text-2xl font-serif font-semibold text-self-deepBrown mt-1">Votre type de peau</h3>
+            <p class="text-xs text-self-muted mt-1">Sélectionnez une ou plusieurs caractéristiques (choix multiple possible) :</p>
+          </div>
+
+          <!-- Grille des 6 types du cahier des charges -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+            
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau normale</span>
+                <input type="checkbox" name="skin" value="normale" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Équilibrée, peu de réactivité</span>
+            </label>
+
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau sèche</span>
+                <input type="checkbox" name="skin" value="seche" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Tiraillements, manque de lipides</span>
+            </label>
+
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau grasse</span>
+                <input type="checkbox" name="skin" value="grasse" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Excès de sébum, brillance</span>
+            </label>
+
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau mixte</span>
+                <input type="checkbox" name="skin" value="mixte" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Zone T grasse, joues normales</span>
+            </label>
+
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau sensible</span>
+                <input type="checkbox" name="skin" value="sensible" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Rougeurs, picotements faciles</span>
+            </label>
+
+            <label class="cursor-pointer skin-option flex flex-col justify-between p-3.5 rounded-xl border border-self-sand bg-white hover:border-self-terracotta/50 transition">
+              <div class="flex items-start justify-between">
+                <span class="text-xs font-semibold text-self-deepBrown">Peau déshydratée</span>
+                <input type="checkbox" name="skin" value="deshydratee" class="accent-self-terracotta rounded">
+              </div>
+              <span class="text-[11px] text-self-muted mt-2">Manque d'eau temporaire</span>
+            </label>
+
+          </div>
+
+          <div class="space-y-3 pt-3">
+            <button onclick="finishOnboarding()" class="w-full py-3.5 bg-self-terracotta hover:bg-self-terracottaDark text-white font-medium text-sm rounded-xl shadow-md transition-all">
+              Valider mon profil cutané
+            </button>
+            <button onclick="setAuthTab('signup')" class="w-full py-2 text-xs text-self-muted hover:text-self-deepBrown text-center block">
+              &larr; Retour à l'étape précédente
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    function setAuthTab(tab) {
+      const loginForm = document.getElementById('loginForm');
+      const signupForm = document.getElementById('signupForm');
+      const skinForm = document.getElementById('skinForm');
+      const authTabs = document.getElementById('authTabs');
+      const tabLogin = document.getElementById('tabLogin');
+      const tabSignup = document.getElementById('tabSignup');
+
+      authTabs.classList.remove('hidden');
+      skinForm.classList.add('hidden');
+
+      if (tab === 'login') {
+        loginForm.classList.remove('hidden');
+        signupForm.classList.add('hidden');
+        tabLogin.className = "flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-deepBrown bg-white shadow-sm transition-all";
+        tabSignup.className = "flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-muted hover:text-self-deepBrown transition-all";
+      } else {
+        signupForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        tabSignup.className = "flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-deepBrown bg-white shadow-sm transition-all";
+        tabLogin.className = "flex-1 py-2.5 rounded-xl text-xs font-semibold text-self-muted hover:text-self-deepBrown transition-all";
+      }
+    }
+
+    function proceedToSkinDiagnosis() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('signupForm').classList.add('hidden');
+      document.getElementById('authTabs').classList.add('hidden');
+      document.getElementById('skinForm').classList.remove('hidden');
+    }
+
+    function skipSkinDiagnosis() {
+      alert("Redirection vers le catalogue et la trousse virtuelle (profil à compléter plus tard).");
+    }
+
+    function finishOnboarding() {
+      const selected = Array.from(document.querySelectorAll('input[name="skin"]:checked')).map(cb => cb.value);
+      alert("Profil enregistré : " + (selected.length > 0 ? selected.join(', ') : "Non spécifié") + ". Bienvenue sur SELF !");
+    }
+
+    // Gestion du style actif sur sélection checkbox
+    document.querySelectorAll('.skin-option input[type="checkbox"]').forEach(box => {
+      box.addEventListener('change', function() {
+        const parent = this.closest('.skin-option');
+        if (this.checked) {
+          parent.classList.add('border-self-terracotta', 'bg-self-warmwhite/70');
+          parent.classList.remove('bg-white');
+        } else {
+          parent.classList.remove('border-self-terracotta', 'bg-self-warmwhite/70');
+          parent.classList.add('bg-white');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
