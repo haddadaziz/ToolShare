@@ -92,7 +92,7 @@ function validateNoOverlap(existingReservations = [], newStartDate, newEndDate, 
 
     return true;
 }
-F
+
 module.exports = {
     calculateEndDate,
     calculateDurationHours,
