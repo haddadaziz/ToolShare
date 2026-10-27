@@ -1,3 +1,5 @@
+const AppError = require('./appError');
+
 /**
  * Utilitaires pour la manipulation et la validation temporelle des réservations
  */
@@ -46,8 +48,54 @@ function isOverlapping(startA, endA, startB, endB) {
     return sA < eB && eA > sB;
 }
 
+/**
+ * Valide qu'un créneau demandé ne chevauche aucune réservation existante active.
+ * Lève une AppError 409 si un conflit est détecté.
+ * @param {Array} existingReservations - Liste des réservations existantes pour l'outil
+ * @param {Date|string} newStartDate - Date de début demandée
+ * @param {Date|string} newEndDate - Date de fin demandée
+ * @param {string|null} excludeReservationId - ID de la réservation à exclure (en cas d'édition)
+ * @returns {boolean}
+ */
+function validateNoOverlap(existingReservations = [], newStartDate, newEndDate, excludeReservationId = null) {
+    const newStart = new Date(newStartDate);
+    const newEnd = new Date(newEndDate);
+
+    // Vérification de la cohérence chronologique
+    if (isNaN(newStart.getTime()) || isNaN(newEnd.getTime())) {
+        throw new AppError('Les dates fournies sont invalides.', 400);
+    }
+    if (newStart >= newEnd) {
+        throw new AppError('La date de début doit être strictement antérieure à la date de fin.', 400);
+    }
+
+    // Recherche d'un conflit parmi les réservations actives
+    const conflict = existingReservations.find(res => {
+        // Ignorer les réservations annulées ou terminées
+        if (['ANNULEE', 'TERMINEE'].includes(res.status)) return false;
+
+        // Ignorer la réservation elle-même si on fait une modification
+        if (excludeReservationId && res._id && res._id.toString() === excludeReservationId.toString()) {
+            return false;
+        }
+
+        // Vérifier le chevauchement avec l'algorithme
+        return isOverlapping(res.startDate, res.endDate, newStart, newEnd);
+    });
+
+    if (conflict) {
+        throw new AppError(
+            `Conflit de réservation : Cet équipement est déjà réservé du ${new Date(conflict.startDate).toISOString()} au ${new Date(conflict.endDate).toISOString()}.`,
+            409
+        );
+    }
+
+    return true;
+}
+F
 module.exports = {
     calculateEndDate,
     calculateDurationHours,
-    isOverlapping
+    isOverlapping,
+    validateNoOverlap
 };
