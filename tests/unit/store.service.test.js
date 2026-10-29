@@ -84,7 +84,7 @@ describe('TOOL-67 : Tests unitaire de StoreService avec Mocks',()=>{
         it('affecte le gestionnaire au magasin avec succes',async()=>{
             storeRepository.findById = async () => activeStore;
             userRepository.findById = async () =>  ({...validManager});
-            userRepository.update = async(id,data) => ({...validManager,storeId:date.storeId});
+            userRepository.update = async(id,data) => ({...validManager,storeId:data.storeId});
 
             const result = await storeService.assignManager('store-1','user-1');
 
@@ -96,7 +96,7 @@ describe('TOOL-67 : Tests unitaire de StoreService avec Mocks',()=>{
                 ...activeStore,isActive:false
             });
 
-            await asser.rejects(
+            await assert.rejects(
                 async () => storeService.assignManager('store-1','user-1'),
                 (err) =>{
                     assert.equal(err.statusCode,400);
@@ -113,7 +113,7 @@ describe('TOOL-67 : Tests unitaire de StoreService avec Mocks',()=>{
 
             userRepository.findById = async () => ({...validManager,role:'USER'});
 
-            await asssert.rejects(
+            await assert.rejects(
                 async() => storeService.assignManager('store-1','user-1'),
                 (err) =>{
                     assert.equal(err.statusCode,400);
@@ -132,7 +132,7 @@ describe('TOOL-67 : Tests unitaire de StoreService avec Mocks',()=>{
                 async () =>
                     storeService.assignManager('store-1','user-1'),(err)=>{
                         assert.equal(err.statusCode,400);
-                        assert.match(err.message,/dejaaffecte/i);
+                        assert.match(err.message,/deja affecte/i);
                         return true
                     }
             )
