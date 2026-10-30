@@ -43,7 +43,7 @@ src/
   models/
     user.model.js
     store.model.js
-    equipment.model.js
+    tool.model.js
     reservation.model.js
     installation.model.js
   repositories/
@@ -87,10 +87,9 @@ tests/
   integration/
 ```
 
-Les fichiers métier marqués `TODO` ne sont pas des implémentations. Les schémas
-de User, Store, Equipment et Reservation et leurs règles doivent être définis à
-partir du modèle métier avant d'être activés. Le diagramme UML existant nomme
-notamment l'entité `Tool`; il faut confirmer son équivalence avec `Equipment`.
+Les schémas User, Store, Tool et Reservation sont définis. Le diagramme UML
+nomme la ressource `Tool`; le module HTTP `equipment` l'expose sous
+`/api/v1/tools`.
 
 ## Requêtes HTTP disponibles
 
@@ -98,12 +97,34 @@ notamment l'entité `Tool`; il faut confirmer son équivalence avec `Equipment`.
 | --- | --- | --- |
 | `GET` | `/` | Message de bienvenue et environnement |
 | `GET` | `/api/v1/health` | État `ok` et environnement |
-| `POST` | `/api/v1/auth/register` | Crée un compte `USER` et retourne un JWT |
+| `POST` | `/api/v1/auth/register` | Crée le premier compte comme `ADMIN` sans authentification si aucun utilisateur n'existe; ensuite, `MANAGER` ou `ADMIN` requis |
 | `POST` | `/api/v1/auth/login` | Vérifie les identifiants et retourne un JWT |
+| `GET` | `/api/v1/auth/` | Liste les utilisateurs; authentification `MANAGER` ou `ADMIN` requise |
+| `DELETE` | `/api/v1/auth/` | Supprime tous les utilisateurs; authentification `ADMIN` requise |
 | `GET` | `/api/v1/me` | Retourne le profil associé au JWT Bearer |
 
-Les routeurs `/api/v1/auth`, `/installation`, `/stores`, `/equipment` et
-`/reservations` sont montés, mais ne définissent pas encore d'endpoints.
+Les routeurs `/api/v1/auth`, `/installation`, `/stores`, `/tools` et
+`/reservations` sont montés.
+
+Les endpoints `/api/v1/tools` requièrent un rôle `ADMIN` ou `MANAGER`.
+Les gestionnaires ne peuvent consulter et modifier que les matériels de leur
+magasin affecté. `GET /api/v1/tools` accepte les filtres `storeId`, `status`
+et `includeDisabled`; le filtre `storeId` est réservé à l'ADMIN.
+La désactivation est logique (`isActive: false`). Le statut métier accepte
+`DISPONIBLE`, `INDISPONIBLE` ou `HORS_SERVICE`.
+
+Les emprunts en cours et les retours sont accessibles sous
+`/api/v1/reservations` :
+
+| Méthode | Chemin | Accès et comportement |
+| --- | --- | --- |
+| `GET` | `/api/v1/reservations/overdue` | `MANAGER`; liste les réservations `EN_COURS` dont `endDate` est dépassée, limitées à son magasin. |
+| `PATCH` | `/api/v1/reservations/:id/checkout` | `MANAGER`; remet le matériel d'une réservation `CONFIRMEE`, enregistre la date réelle et passe la réservation à `EN_COURS`. Un matériel déjà emprunté ou indisponible ne peut pas être remis. |
+| `PATCH` | `/api/v1/reservations/:id/checkin` | `MANAGER`; attend `{"returnCondition":"BON"}` ou `{"returnCondition":"ENDOMMAGE"}` pour terminer un emprunt en cours et enregistrer son heure réelle de retour. Un matériel endommagé devient `INDISPONIBLE`; un matériel rendu en bon état redevient `DISPONIBLE`. |
+
+La remise et le retour mettent à jour la réservation et l'état du matériel
+dans une transaction MongoDB. Les routes vérifient que le gestionnaire est
+affecté au magasin concerné.
 
 ## Démarrage et configuration
 
@@ -125,11 +146,16 @@ Ne créez pas de fichier `.env` contenant des secrets dans Git. Copiez
 docker compose -f docker-compose.yml up --build
 ```
 
-`config/swagger.js` contient les métadonnées OpenAPI, mais l'interface Swagger
-n'est pas encore servie par l'application.
+La spécification OpenAPI est exposée sur `/api-docs.json` et l'interface
+Swagger UI sur `/api-docs/`. Les opérations protégées utilisent un JWT Bearer;
+utilisez **Authorize** dans l'interface pour envoyer le token.
 
-L'inscription attend `name`, `email` et `password` (8 caractères minimum);
-le rôle est attribué à `USER` et le mot de passe est haché avec bcrypt.
+L'inscription attend `name`, `email` et `password` (8 caractères minimum), et
+nécessite un JWT Bearer d'un compte `MANAGER` ou `ADMIN`. Un `MANAGER` peut
+uniquement créer des comptes `USER`; un `ADMIN` peut créer des comptes `USER`
+ou `MANAGER`. Si le rôle demandé est omis, il est attribué à `USER`. Le mot de
+passe est haché avec bcrypt. La connexion MongoDB de l'exemple utilise la base
+`toolshare`.
 Pour lire le profil, envoyer `Authorization: Bearer <token>`. Les JWT expirent
 après une heure.
 
@@ -144,3 +170,6 @@ après une heure.
 
 Les fonctionnalités métier doivent être ajoutées couche par couche, avec des
 tests unitaires et d'intégration dans `tests/`.
+
+Les tests unitaires Jest se lancent avec `npm run test:jest`; les tests du
+runner Node existant se lancent avec `npm test`.

@@ -1,42 +1,61 @@
 const userRepository = require('../repositories/user.repository')
 const { toPublicUser } = require('../services/auth.service')
 const { verifyToken } = require('../utils/jwt.util')
+const AppError = require('../utils/appError')
 
 async function authenticate(req, res, next) {
-    const authorization = req.headers.authorization
-
-    if (!authorization) {
-        return res.status(401).json({ message: 'Authentification requise ou jeton invalide.' })
-    }
-
-
-    const parts = authorization.split(' ')
-
-    if (parts.length !== 2 || parts[0] !== 'Bearer') {
-        return res.status(401).json({ message: 'Authentification requise ou jeton invalide.' })
-    }
-
-    const token = parts[1]
-
-    let payload
     try {
-        payload = verifyToken(token)
+        const authorization = req.headers.authorization
+       if((await userRepository.countUsers()) === 0) return next()
+        if (!authorization) {
+            return next(new AppError('Authentication required or token is invalid. 1', 401))
+        }
+
+        const parts = authorization.split(' ')
+
+        if (parts.length !== 2 || parts[0] !== 'Bearer') {
+            return next(new AppError('Authentication required or token is invalid. 2', 401))
+        }
+
+        let payload
+        try {
+            payload = verifyToken(parts[1])
+        } catch {
+            return next(new AppError('Authentication required or token is invalid. 3', 401))
+        }
+
+        if (!payload || !payload.sub) {
+            return next(new AppError('Authentication required or token is invalid. 4', 401))
+        }
+
+        const user = await userRepository.findById(payload.sub)
+        
+        if (!user || !user.isActive) {
+            return next(new AppError('Authentication required or token is invalid. 5', 401))
+      }
+      
+
+        req.user = toPublicUser(user)
+        return next()
     } catch (error) {
-        return res.status(401).json({ message: 'Authentification requise ou jeton invalide.' })
+        return next(error)
     }
-
-    if (!payload || !payload.sub) {
-        return res.status(401).json({ message: 'Authentification requise ou jeton invalide.' })
-    }
-
-    const user = await userRepository.findById(payload.sub)
-
-    if (!user || !user.isActive) {
-        return res.status(401).json({ message: 'Authentification requise ou jeton invalide.' })
-    }
-
-    req.user = toPublicUser(user)
-    next()
 }
 
-module.exports = { authenticate }
+
+
+function restrictTo(...roles) {
+    return function (req, res, next) {
+        if (!req.user || !roles.includes(req.user.role)) {
+            return next(new AppError('Access denied. Insufficient permissions.', 403))
+        }
+        next()
+    }
+}
+
+
+
+module.exports = {
+    authenticate,
+    restrictTo,
+}
