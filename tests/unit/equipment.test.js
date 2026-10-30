@@ -65,7 +65,7 @@ test('manager tool operations stay scoped to the assigned store', async () => {
                 role: 'MANAGER',
                 storeId
             }),
-            { message: 'Matériel introuvable' }
+            { message: 'Equipment not found' }
         )
         assert.deepEqual(capturedFilter, { storeId, isActive: true })
 
@@ -75,7 +75,7 @@ test('manager tool operations stay scoped to the assigned store', async () => {
                 name: 'Perceuse',
                 storeId: '507f1f77bcf86cd799439012'
             }, { role: 'MANAGER', storeId }),
-            { message: 'Accès refusé à ce magasin' }
+            { message: 'Access to this store is denied' }
         )
 
         equipmentRepository.update = async (id, filter, updates) => {

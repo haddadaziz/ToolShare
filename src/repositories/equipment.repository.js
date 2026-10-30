@@ -21,11 +21,11 @@ class EquipmentRepository {
         return Tool.findOne(filter)
     }
 
-    async update(id, filter, updateData) {
+    async update(id, filter, updateData, session = null) {
         return Tool.findOneAndUpdate(
             { _id: id, ...filter },
             updateData,
-            { new: true, runValidators: true }
+            { new: true, runValidators: true, ...(session ? { session } : {}) }
         )
     }
 }

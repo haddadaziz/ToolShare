@@ -4,7 +4,7 @@ async function connectDB() {
     const mongoUri = process.env.MONGO_URI
 
     if (!mongoUri) {
-        throw new Error('La variable MONGO_URI est obligatoire.')
+        throw new Error('The MONGO_URI environment variable is required.')
     }
 
     const queryIndex = mongoUri.indexOf('?')
@@ -18,7 +18,7 @@ async function connectDB() {
     const connectionUri = `${authority}/toolshare${query}`
 
     await mongoose.connect(connectionUri)
-    console.log('Connexion MongoDB établie.')
+    console.log('MongoDB connection established.')
 }
 
 module.exports = connectDB

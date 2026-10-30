@@ -87,9 +87,9 @@ tests/
   integration/
 ```
 
-Les schémas User, Store et Tool sont définis; les modules Reservation restent
-à implémenter. Le diagramme UML nomme la ressource `Tool`; le module HTTP
-`equipment` l'expose sous `/api/v1/tools`.
+Les schémas User, Store, Tool et Reservation sont définis. Le diagramme UML
+nomme la ressource `Tool`; le module HTTP `equipment` l'expose sous
+`/api/v1/tools`.
 
 ## Requêtes HTTP disponibles
 
@@ -103,8 +103,8 @@ Les schémas User, Store et Tool sont définis; les modules Reservation restent
 | `DELETE` | `/api/v1/auth/` | Supprime tous les utilisateurs; authentification `ADMIN` requise |
 | `GET` | `/api/v1/me` | Retourne le profil associé au JWT Bearer |
 
-Les routeurs `/api/v1/auth`, `/installation`, `/stores` et `/tools` sont
-montés. Le routeur `/reservations` reste à implémenter.
+Les routeurs `/api/v1/auth`, `/installation`, `/stores`, `/tools` et
+`/reservations` sont montés.
 
 Les endpoints `/api/v1/tools` requièrent un rôle `ADMIN` ou `MANAGER`.
 Les gestionnaires ne peuvent consulter et modifier que les matériels de leur
@@ -112,6 +112,19 @@ magasin affecté. `GET /api/v1/tools` accepte les filtres `storeId`, `status`
 et `includeDisabled`; le filtre `storeId` est réservé à l'ADMIN.
 La désactivation est logique (`isActive: false`). Le statut métier accepte
 `DISPONIBLE`, `INDISPONIBLE` ou `HORS_SERVICE`.
+
+Les emprunts en cours et les retours sont accessibles sous
+`/api/v1/reservations` :
+
+| Méthode | Chemin | Accès et comportement |
+| --- | --- | --- |
+| `GET` | `/api/v1/reservations/overdue` | `MANAGER`; liste les réservations `EN_COURS` dont `endDate` est dépassée, limitées à son magasin. |
+| `PATCH` | `/api/v1/reservations/:id/checkout` | `MANAGER`; remet le matériel d'une réservation `CONFIRMEE`, enregistre la date réelle et passe la réservation à `EN_COURS`. Un matériel déjà emprunté ou indisponible ne peut pas être remis. |
+| `PATCH` | `/api/v1/reservations/:id/checkin` | `MANAGER`; attend `{"returnCondition":"BON"}` ou `{"returnCondition":"ENDOMMAGE"}` pour terminer un emprunt en cours et enregistrer son heure réelle de retour. Un matériel endommagé devient `INDISPONIBLE`; un matériel rendu en bon état redevient `DISPONIBLE`. |
+
+La remise et le retour mettent à jour la réservation et l'état du matériel
+dans une transaction MongoDB. Les routes vérifient que le gestionnaire est
+affecté au magasin concerné.
 
 ## Démarrage et configuration
 
@@ -133,8 +146,9 @@ Ne créez pas de fichier `.env` contenant des secrets dans Git. Copiez
 docker compose -f docker-compose.yml up --build
 ```
 
-`config/swagger.js` contient les métadonnées OpenAPI, mais l'interface Swagger
-n'est pas encore servie par l'application.
+La spécification OpenAPI est exposée sur `/api-docs.json` et l'interface
+Swagger UI sur `/api-docs/`. Les opérations protégées utilisent un JWT Bearer;
+utilisez **Authorize** dans l'interface pour envoyer le token.
 
 L'inscription attend `name`, `email` et `password` (8 caractères minimum), et
 nécessite un JWT Bearer d'un compte `MANAGER` ou `ADMIN`. Un `MANAGER` peut
@@ -156,3 +170,6 @@ après une heure.
 
 Les fonctionnalités métier doivent être ajoutées couche par couche, avec des
 tests unitaires et d'intégration dans `tests/`.
+
+Les tests unitaires Jest se lancent avec `npm run test:jest`; les tests du
+runner Node existant se lancent avec `npm test`.

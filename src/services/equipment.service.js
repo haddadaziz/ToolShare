@@ -8,20 +8,20 @@ const TOOL_FIELDS = ['reference', 'name', 'description', 'status']
 
 function assertValidId(id, label) {
     if (!mongoose.isValidObjectId(id)) {
-        throw new AppError(`${label} invalide`, 400)
+        throw new AppError(`${label} is invalid`, 400)
     }
 }
 
 function assertObject(data) {
     if (!data || typeof data !== 'object' || Array.isArray(data)) {
-        throw new AppError('Le corps de la requête doit être un objet', 400)
+        throw new AppError('The request body must be an object', 400)
     }
 }
 
 function getStoreScope(user) {
     if (user.role === 'MANAGER') {
         if (!user.storeId) {
-            throw new AppError('Aucun magasin n’est affecté à ce gestionnaire', 403)
+            throw new AppError('No store is assigned to this manager', 403)
         }
 
         return { storeId: user.storeId }
@@ -42,25 +42,25 @@ class EquipmentService {
             const scope = getStoreScope(user)
 
             if (requestedStoreId && requestedStoreId.toString() !== scope.storeId.toString()) {
-                throw new AppError('Accès refusé à ce magasin', 403)
+                throw new AppError('Access to this store is denied', 403)
             }
 
             return scope.storeId
         }
 
         if (!requestedStoreId) {
-            throw new AppError('Le magasin est obligatoire', 400)
+            throw new AppError('Store is required', 400)
         }
 
-        assertValidId(requestedStoreId, 'Identifiant du magasin')
+        assertValidId(requestedStoreId, 'Store ID')
         return requestedStoreId
     }
 
     async assertStoreExists(storeId) {
         const store = await storeRepository.findById(storeId)
 
-        if (!store) throw new AppError('Magasin introuvable', 404)
-        if (!store.isActive) throw new AppError('Impossible de gérer le matériel d’un magasin inactif', 400)
+        if (!store) throw new AppError('Store not found', 404)
+        if (!store.isActive) throw new AppError('Cannot manage equipment for an inactive store', 400)
     }
 
     async createTool(data, user) {
@@ -68,23 +68,23 @@ class EquipmentService {
         const { reference, name, description, status } = data
 
         if (typeof reference !== 'string' || !reference.trim()) {
-            throw new AppError('La référence est obligatoire', 400)
+            throw new AppError('Reference is required', 400)
         }
         if (typeof name !== 'string' || name.trim().length < 2) {
-            throw new AppError('Le nom doit contenir au moins 2 caractères', 400)
+            throw new AppError('Name must be at least 2 characters long', 400)
         }
         if (description !== undefined && typeof description !== 'string') {
-            throw new AppError('La description doit être une chaîne de caractères', 400)
+            throw new AppError('Description must be a string', 400)
         }
         if (status !== undefined && !TOOL_STATUSES.includes(status)) {
-            throw new AppError('Statut du matériel invalide', 400)
+            throw new AppError('Equipment status is invalid', 400)
         }
 
         const storeId = await this.resolveStoreId(user, data.storeId)
         await this.assertStoreExists(storeId)
 
         if (await equipmentRepository.findByReference(reference.trim())) {
-            throw new AppError('Cette référence est déjà utilisée', 409)
+            throw new AppError('This reference is already in use', 409)
         }
 
         try {
@@ -97,7 +97,7 @@ class EquipmentService {
             })
         } catch (error) {
             if (error.code === 11000) {
-                throw new AppError('Cette référence est déjà utilisée', 409)
+                throw new AppError('This reference is already in use', 409)
             }
             throw error
         }
@@ -110,13 +110,13 @@ class EquipmentService {
         if (user.role === 'MANAGER') {
             Object.assign(query, storeScope)
         } else if (filters.storeId) {
-            assertValidId(filters.storeId, 'Identifiant du magasin')
+            assertValidId(filters.storeId, 'Store ID')
             query.storeId = filters.storeId
         }
 
         if (filters.status) {
             if (!TOOL_STATUSES.includes(filters.status)) {
-                throw new AppError('Statut du matériel invalide', 400)
+                throw new AppError('Equipment status is invalid', 400)
             }
             query.status = filters.status
         }
@@ -125,55 +125,55 @@ class EquipmentService {
     }
 
     async getToolById(id, user, { includeDisabled = false } = {}) {
-        assertValidId(id, 'Identifiant du matériel')
+        assertValidId(id, 'Equipment ID')
         const filter = { ...getStoreScope(user) }
 
         if (!includeDisabled) filter.isActive = true
 
         const tool = await equipmentRepository.findById(id, filter)
-        if (!tool) throw new AppError('Matériel introuvable', 404)
+        if (!tool) throw new AppError('Equipment not found', 404)
         return tool
     }
 
     async updateTool(id, data, user) {
         assertObject(data)
-        assertValidId(id, 'Identifiant du matériel')
+        assertValidId(id, 'Equipment ID')
         const filter = { ...getStoreScope(user), isActive: true }
         const updates = pickToolFields(data)
 
         if (data.storeId !== undefined) {
             if (user.role === 'MANAGER') {
-                throw new AppError('Un gestionnaire ne peut pas déplacer un matériel vers un autre magasin', 403)
+                throw new AppError('A manager cannot move equipment to another store', 403)
             }
             updates.storeId = await this.resolveStoreId(user, data.storeId)
             await this.assertStoreExists(updates.storeId)
         }
         if (updates.status !== undefined && !TOOL_STATUSES.includes(updates.status)) {
-            throw new AppError('Statut du matériel invalide', 400)
+            throw new AppError('Equipment status is invalid', 400)
         }
         if (updates.reference !== undefined) {
             if (typeof updates.reference !== 'string' || !updates.reference.trim()) {
-                throw new AppError('La référence ne peut pas être vide', 400)
+                throw new AppError('Reference cannot be empty', 400)
             }
             updates.reference = updates.reference.trim()
             if (await equipmentRepository.findByReference(updates.reference, id)) {
-                throw new AppError('Cette référence est déjà utilisée', 409)
+                throw new AppError('This reference is already in use', 409)
             }
         }
         if (updates.name !== undefined) {
             if (typeof updates.name !== 'string' || updates.name.trim().length < 2) {
-                throw new AppError('Le nom doit contenir au moins 2 caractères', 400)
+                throw new AppError('Name must be at least 2 characters long', 400)
             }
             updates.name = updates.name.trim()
         }
         if (updates.description !== undefined) {
             if (typeof updates.description !== 'string') {
-                throw new AppError('La description doit être une chaîne de caractères', 400)
+                throw new AppError('Description must be a string', 400)
             }
             updates.description = updates.description.trim()
         }
         if (Object.keys(updates).length === 0) {
-            throw new AppError('Aucune donnée valide à mettre à jour', 400)
+            throw new AppError('No valid data to update', 400)
         }
 
         let tool
@@ -181,29 +181,29 @@ class EquipmentService {
             tool = await equipmentRepository.update(id, filter, updates)
         } catch (error) {
             if (error.code === 11000) {
-                throw new AppError('Cette référence est déjà utilisée', 409)
+                throw new AppError('This reference is already in use', 409)
             }
             throw error
         }
-        if (!tool) throw new AppError('Matériel introuvable', 404)
+        if (!tool) throw new AppError('Equipment not found', 404)
         return tool
     }
 
     async disableTool(id, user) {
-        assertValidId(id, 'Identifiant du matériel')
+        assertValidId(id, 'Equipment ID')
         const tool = await equipmentRepository.update(
             id,
             { ...getStoreScope(user), isActive: true },
             { isActive: false }
         )
-        if (!tool) throw new AppError('Matériel introuvable', 404)
+        if (!tool) throw new AppError('Equipment not found', 404)
         return tool
     }
 
     async setToolStatus(id, status, user) {
-        assertValidId(id, 'Identifiant du matériel')
+        assertValidId(id, 'Equipment ID')
         if (!TOOL_STATUSES.includes(status)) {
-            throw new AppError('Statut du matériel invalide', 400)
+            throw new AppError('Equipment status is invalid', 400)
         }
 
         const tool = await equipmentRepository.update(
@@ -211,7 +211,7 @@ class EquipmentService {
             { ...getStoreScope(user), isActive: true },
             { status }
         )
-        if (!tool) throw new AppError('Matériel introuvable', 404)
+        if (!tool) throw new AppError('Equipment not found', 404)
         return tool
     }
 }

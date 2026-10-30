@@ -6,10 +6,10 @@ class StoreController {
         try {
             const { name, address, site } = req.body;
 
-            if (!name || !address || !site) throw new AppError('Tous les champs sont obligatoires', 400);
+            if (!name || !address || !site) throw new AppError('All fields are required', 400);
 
             const store = await storeService.createStore({ name, address, site });
-            res.status(201).json({ status: 'success', message: 'magasin crée avec succes', data: store })
+            res.status(201).json({ status: 'success', message: 'Store created successfully', data: store })
         } catch (e) {
             next(e)
         }
@@ -44,7 +44,7 @@ class StoreController {
         try {
             const updated = await storeService.updateStore(req.params.id, req.body);
 
-            res.status(200).json({ status: 'success', message: 'magasin mis a jour avec success', data: updated });
+            res.status(200).json({ status: 'success', message: 'Store updated successfully', data: updated });
         } catch (e) {
             next(e)
         }
@@ -54,10 +54,10 @@ class StoreController {
         try {
             const { isActive } = req.body;
 
-            if (typeof isActive !== 'boolean') throw new AppError('Le champ isActive doit etre un boolean true/false', 400)
+            if (typeof isActive !== 'boolean') throw new AppError('isActive must be a boolean', 400)
 
             const store = await storeService.toggleStoreStatus(req.params.id, isActive);
-            res.status(200).json({ status: 'success', message: ` Magasin ${isActive ? 'activé' : 'desactivé'} avec succès`, data: store })
+            res.status(200).json({ status: 'success', message: `Store ${isActive ? 'activated' : 'deactivated'} successfully`, data: store })
         }catch(e){
             next(e)
         }
@@ -67,11 +67,11 @@ class StoreController {
         try{
             const{managerId} = req.body;
 
-            if(!managerId) throw new AppError('Le champ managerId est obligatoire',400);
+            if(!managerId) throw new AppError('The managerId field is required',400);
 
             const result = await storeService.assignManager(req.params.id,managerId);
 
-            res.status(200).json({status:'success',message:'gestionnaire affecte avec succes au magasin',data:result})
+            res.status(200).json({status:'success',message:'Manager assigned to store successfully',data:result})
         }catch(e){
             next(e)
         }

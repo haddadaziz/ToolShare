@@ -16,7 +16,7 @@ class InstallationService {
 
         const existingInstall = await installationRepository.getInstallation();
         if (existingInstall && existingInstall.isInstalled) {
-            const error = new Error(`l'application est deja installé, re installation refusée`);
+            const error = new Error('The application is already installed; reinstalling is not allowed')
             error.statusCode = 400
             throw error;
         }

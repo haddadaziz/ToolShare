@@ -15,7 +15,7 @@ class EquipmentController {
         try {
             const includeDisabled = req.query.includeDisabled
             if (includeDisabled !== undefined && includeDisabled !== 'true' && includeDisabled !== 'false') {
-                throw new AppError('includeDisabled doit être true ou false', 400)
+                throw new AppError('includeDisabled must be true or false', 400)
             }
 
             const tools = await equipmentService.getTools(req.user, {
@@ -33,7 +33,7 @@ class EquipmentController {
         try {
             const includeDisabled = req.query.includeDisabled
             if (includeDisabled !== undefined && includeDisabled !== 'true' && includeDisabled !== 'false') {
-                throw new AppError('includeDisabled doit être true ou false', 400)
+                throw new AppError('includeDisabled must be true or false', 400)
             }
             const tool = await equipmentService.getToolById(
                 req.params.id,
