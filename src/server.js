@@ -10,11 +10,11 @@ async function startServer() {
     await connectDB()
 
     app.listen(PORT, () => {
-        console.log(`Serveur demarré sur http://localhost:${PORT}`)
+        console.log(`Server started at http://localhost:${PORT}`)
     })
 }
 
 startServer().catch((error) => {
-    console.error('Impossible de démarrer le serveur:', error)
+    console.error('Failed to start server:', error)
     process.exitCode = 1
 })

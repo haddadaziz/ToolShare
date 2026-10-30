@@ -35,12 +35,27 @@ test('serves the root and versioned health endpoints', async () => {
     })
 })
 
+test('serves the OpenAPI specification and Swagger UI', async () => {
+    const specificationResponse = await fetch(`${baseUrl}/api-docs.json`)
+    assert.equal(specificationResponse.status, 200)
+    const specification = await specificationResponse.json()
+    assert.equal(specification.openapi, '3.0.3')
+    assert.ok(specification.paths['/api/v1/reservations/{id}/checkout'])
+    assert.ok(specification.paths['/api/v1/reservations/{id}/checkin'])
+    assert.ok(specification.components.securitySchemes.bearerAuth)
+
+    const documentationResponse = await fetch(`${baseUrl}/api-docs/`)
+    assert.equal(documentationResponse.status, 200)
+    assert.match(documentationResponse.headers.get('content-type'), /text\/html/)
+    assert.match(await documentationResponse.text(), /Swagger UI/)
+})
+
 test('returns a JSON 404 for unknown routes', async () => {
     const response = await fetch(`${baseUrl}/api/v1/unknown`)
 
     assert.equal(response.status, 404)
     assert.deepEqual(await response.json(), {
-        message: 'Route introuvable : GET /api/v1/unknown'
+        message: 'Route not found: GET /api/v1/unknown'
     })
 })
 

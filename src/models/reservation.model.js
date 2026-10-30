@@ -4,7 +4,7 @@ const reservationSchema = new mongoose.Schema(
     {
         toolId: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Equipment',
+            ref: 'Tool',
             required: true,
             index: true
         },

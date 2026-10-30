@@ -1,25 +1,33 @@
 const authService = require('../services/auth.service')
 const userRepository = require('../repositories/user.repository')
 
-// const { authenticate } = require('../middlewares/auth.middleware');
 const AppError = require('../utils/appError')
 
 async function register(req, res, next) {
   const IsFirstUser = (await userRepository.countUsers()) === 0;
-if(!IsFirstUser){
-  const currentUserRole = req.user?.role;
-  
- if(!currentUserRole)  return next(new AppError("login first !!", 403));
-  if (currentUserRole === 'USER') {
-    return next(new AppError("you can't create account only manager or admin !!!", 403));
-  }
-  if (currentUserRole === 'MANAGER' && (req.body.role === 'MANAGER' || req.body.role === 'ADMIN')) {
-    return next(new AppError("you can't create Manager or admin ! .admin only !", 403));
+  if (!IsFirstUser) {
+    const currentUserRole = req.user?.role;
+    const requestedRole = req.body.role || 'USER';
 
+    if (!['USER', 'MANAGER', 'ADMIN'].includes(requestedRole)) {
+      return next(new AppError('Requested role is invalid.', 400));
+    }
+    if (currentUserRole === 'USER') {
+      return next(new AppError("you can't create account only manager or admin !!!", 403));
+    }
+    if (currentUserRole === 'MANAGER' && requestedRole !== 'USER') {
+      return next(new AppError("you can't create Manager or admin ! .admin only !", 403));
+    }
+    if (currentUserRole === 'ADMIN' && requestedRole === 'ADMIN') {
+      return next(new AppError('An admin cannot create another admin account.', 403));
+    }
+    if (!['ADMIN', 'MANAGER'].includes(currentUserRole)) {
+      return next(new AppError('login first !!', 403));
+    }
   }
-}
-    const result = await authService.register(req.body, req.user)
-    res.status(201).json(result)
+
+  const result = await authService.register(req.body, req.user)
+  res.status(201).json(result)
 }
 
 async function login(req, res) {

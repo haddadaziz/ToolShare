@@ -1,11 +1,11 @@
 const AppError = require('./appError');
 
 /**
- * Utilitaires pour la manipulation et la validation temporelle des réservations
+ * Utilities for reservation time calculations and validation.
  */
 
 /**
- * Calcule la date de fin à partir d'une date de début et d'une durée en heures.
+ * Calculates the end date from a start date and a duration in hours.
  * @param {Date|string} startDate
  * @param {number} durationHours
  * @returns {Date}
@@ -17,7 +17,7 @@ function calculateEndDate(startDate, durationHours) {
 }
 
 /**
- * Calcule la durée en heures (avec décimales) entre deux dates.
+ * Calculates the duration in hours (including fractions) between two dates.
  * @param {Date|string} startDate
  * @param {Date|string} endDate
  * @returns {number}
@@ -30,9 +30,9 @@ function calculateDurationHours(startDate, endDate) {
 }
 
 /**
- * Algorithme d'intersection d'intervalles :
- * Retourne true si les intervalles [startA, endA] et [startB, endB] se chevauchent.
- * Condition : startA < endB ET endA > startB
+ * Interval overlap algorithm.
+ * Returns true if [startA, endA] and [startB, endB] overlap.
+ * Condition: startA < endB AND endA > startB.
  * @param {Date|string} startA
  * @param {Date|string} endA
  * @param {Date|string} startB
@@ -49,43 +49,43 @@ function isOverlapping(startA, endA, startB, endB) {
 }
 
 /**
- * Valide qu'un créneau demandé ne chevauche aucune réservation existante active.
- * Lève une AppError 409 si un conflit est détecté.
- * @param {Array} existingReservations - Liste des réservations existantes pour l'outil
- * @param {Date|string} newStartDate - Date de début demandée
- * @param {Date|string} newEndDate - Date de fin demandée
- * @param {string|null} excludeReservationId - ID de la réservation à exclure (en cas d'édition)
+ * Validates that a requested time slot does not overlap an active reservation.
+ * Throws an AppError with status 409 if a conflict is detected.
+ * @param {Array} existingReservations - Existing reservations for the tool.
+ * @param {Date|string} newStartDate - Requested start date.
+ * @param {Date|string} newEndDate - Requested end date.
+ * @param {string|null} excludeReservationId - Reservation ID to exclude when editing.
  * @returns {boolean}
  */
 function validateNoOverlap(existingReservations = [], newStartDate, newEndDate, excludeReservationId = null) {
     const newStart = new Date(newStartDate);
     const newEnd = new Date(newEndDate);
 
-    // Vérification de la cohérence chronologique
+    // Validate chronological order.
     if (isNaN(newStart.getTime()) || isNaN(newEnd.getTime())) {
-        throw new AppError('Les dates fournies sont invalides.', 400);
+        throw new AppError('The provided dates are invalid.', 400);
     }
     if (newStart >= newEnd) {
-        throw new AppError('La date de début doit être strictement antérieure à la date de fin.', 400);
+        throw new AppError('The start date must be earlier than the end date.', 400);
     }
 
-    // Recherche d'un conflit parmi les réservations actives
+    // Find a conflict among active reservations.
     const conflict = existingReservations.find(res => {
-        // Ignorer les réservations annulées ou terminées
+        // Ignore cancelled or completed reservations.
         if (['ANNULEE', 'TERMINEE'].includes(res.status)) return false;
 
-        // Ignorer la réservation elle-même si on fait une modification
+        // Ignore the reservation itself when editing.
         if (excludeReservationId && res._id && res._id.toString() === excludeReservationId.toString()) {
             return false;
         }
 
-        // Vérifier le chevauchement avec l'algorithme
+        // Check for overlap.
         return isOverlapping(res.startDate, res.endDate, newStart, newEnd);
     });
 
     if (conflict) {
         throw new AppError(
-            `Conflit de réservation : Cet équipement est déjà réservé du ${new Date(conflict.startDate).toISOString()} au ${new Date(conflict.endDate).toISOString()}.`,
+            `Reservation conflict: This equipment is already reserved from ${new Date(conflict.startDate).toISOString()} to ${new Date(conflict.endDate).toISOString()}.`,
             409
         );
     }

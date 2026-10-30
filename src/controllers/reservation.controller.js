@@ -33,6 +33,19 @@ class ReservationController{
         }
     }
 
+    async getOverdue(req,res,next){
+        try{
+            const reservations = await reservationService.getOverdueReservations(req.user);
+            res.status(200).json({
+                status:'success',
+                count: reservations.length,
+                data:reservations
+            });
+        }catch(e){
+            next(e)
+        }
+    }
+
     async getById(req,res,next){
         try{
             const reservation = await reservationService.getReservationById(req.params.id,req.user);
@@ -43,11 +56,44 @@ class ReservationController{
         }
     }
 
+    async checkOut(req,res,next){
+        try{
+            const reservation = await reservationService.checkOutReservation(
+                req.params.id,
+                req.user
+            );
+            res.status(200).json({
+                status:'success',
+                message:'Equipment checked out successfully',
+                data:reservation
+            });
+        }catch(e){
+            next(e)
+        }
+    }
+
     async cancel(req,res,next){
         try{
             const cancelled = await reservationService.cancelReservation(req.params.id,req.user);
 
             res.status(200).json({status:'success',message:'reservation annulee avec succees',data:cancelled});
+        }catch(e){
+            next(e)
+        }
+    }
+
+    async checkIn(req,res,next){
+        try{
+            const reservation = await reservationService.checkInReservation(
+                req.params.id,
+                req.body?.returnCondition,
+                req.user
+            );
+            res.status(200).json({
+                status:'success',
+                message:'Equipment returned successfully',
+                data:reservation
+            });
         }catch(e){
             next(e)
         }

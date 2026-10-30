@@ -1,0 +1,283 @@
+{
+  "info": {
+    "name": "ToolShare API - Demo",
+    "description": "Smoke tests using accounts and tools created by `npm run seed`.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:5000" },
+    { "key": "adminToken", "value": "" },
+    { "key": "managerToken", "value": "" },
+    { "key": "userToken", "value": "" },
+    { "key": "storeId", "value": "" },
+    { "key": "toolId", "value": "" },
+    { "key": "reservationId", "value": "" },
+    { "key": "overdueReservationId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/api/v1/health"
+      }
+    },
+    {
+      "name": "Login - Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('login succeeded', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('adminToken', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"admin@example.test\",\"password\":\"Admin123!\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      }
+    },
+    {
+      "name": "List Stores - Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('stores loaded', () => pm.response.to.have.status(200));",
+              "const stores = pm.response.json().data;",
+              "const store = stores.find(item => item.name === 'ToolShare Demo - Centre');",
+              "pm.collectionVariables.set('storeId', store._id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }],
+        "url": "{{baseUrl}}/api/v1/stores"
+      }
+    },
+    {
+      "name": "Login - Manager",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('login succeeded', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('managerToken', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"manager@example.test\",\"password\":\"Manager123!\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      }
+    },
+    {
+      "name": "List Tools - Manager",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('tools loaded', () => pm.response.to.have.status(200));",
+              "const tool = pm.response.json().data.find(item => item.reference === 'DEMO-DRILL-001');",
+              "pm.collectionVariables.set('toolId', tool._id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }],
+        "url": "{{baseUrl}}/api/v1/tools"
+      }
+    },
+    {
+      "name": "Login - User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('login succeeded', () => pm.response.to.have.status(200));",
+              "pm.collectionVariables.set('userToken', pm.response.json().token);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"email\":\"user@example.test\",\"password\":\"User123!\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      }
+    },
+    {
+      "name": "Create Reservation - User",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.collectionVariables.set('startDate', new Date(Date.now() + 60 * 60 * 1000).toISOString());"
+            ]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('reservation created', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('reservationId', pm.response.json().data._id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{userToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"toolId\":\"{{toolId}}\",\"storeId\":\"{{storeId}}\",\"startDate\":\"{{startDate}}\",\"durationHours\":2}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/v1/reservations"
+      }
+    },
+    {
+      "name": "Cancel Reservation - User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('reservation cancelled', () => pm.response.to.have.status(200));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+        "url": "{{baseUrl}}/api/v1/reservations/{{reservationId}}/cancel"
+      }
+    },
+    {
+      "name": "List Overdue Reservations - Manager",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('overdue reservations loaded', () => pm.response.to.have.status(200));",
+              "const reservation = pm.response.json().data.find(item => item.toolId.reference === 'DEMO-SANDER-001');",
+              "pm.expect(reservation).to.exist;",
+              "pm.collectionVariables.set('overdueReservationId', reservation._id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }],
+        "url": "{{baseUrl}}/api/v1/reservations/overdue"
+      }
+    },
+    {
+      "name": "Check In Damaged Tool - Manager",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('return recorded as damaged', () => pm.response.to.have.status(200));",
+              "const reservation = pm.response.json().data;",
+              "pm.expect(reservation.status).to.eql('TERMINEE');",
+              "pm.expect(reservation.returnCondition).to.eql('ENDOMMAGE');",
+              "pm.expect(reservation.actualEndDate).to.exist;"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          { "key": "Authorization", "value": "Bearer {{managerToken}}" },
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"returnCondition\":\"ENDOMMAGE\"}",
+          "options": { "raw": { "language": "json" } }
+        },
+        "url": "{{baseUrl}}/api/v1/reservations/{{overdueReservationId}}/checkin"
+      }
+    },
+    {
+      "name": "Verify Damaged Tool Unavailable - Manager",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('damaged tool is unavailable', () => pm.response.to.have.status(200));",
+              "const tool = pm.response.json().data.find(item => item.reference === 'DEMO-SANDER-001');",
+              "pm.expect(tool.status).to.eql('INDISPONIBLE');"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{managerToken}}" }],
+        "url": "{{baseUrl}}/api/v1/tools"
+      }
+    },
+    {
+      "name": "List My Reservations - User",
+      "request": {
+        "method": "GET",
+        "header": [{ "key": "Authorization", "value": "Bearer {{userToken}}" }],
+        "url": "{{baseUrl}}/api/v1/reservations"
+      }
+    }
+  ]
+}

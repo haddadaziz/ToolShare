@@ -37,17 +37,17 @@ async function register(data) {
     
     if (!name || name.trim() === '') {
        
-        throw new AppError('Le nom est obligatoire.',400)
+        throw new AppError('Name is required.', 400)
     }
 
   if (!email || !email.includes('@') || !email.includes('.')) {
-    throw new AppError('Une adresse e-mail valide est obligatoire.',400)
+    throw new AppError('A valid email address is required.', 400)
  
     }
 
     if (!password || password.length < 8) {
       
-      throw new AppError('Le mot de passe doit contenir au moins 8 caractères.',400)
+      throw new AppError('Password must be at least 8 characters long.', 400)
 
     }
 
@@ -58,7 +58,7 @@ async function register(data) {
     const existingUser = await userRepository.findByEmailWithPassword(cleanEmail)
   if (existingUser) {
    
-        throw new AppError('Cette adresse e-mail est déjà utilisée.',400)
+        throw new AppError('This email address is already in use.', 400)
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
@@ -82,7 +82,7 @@ async function login(data) {
     const password = data.password
 
   if (!email || !password) {
-    throw new AppError('Identifiants invalides.',401)
+    throw new AppError('Invalid credentials.', 401)
 
     }
 
@@ -90,17 +90,17 @@ async function login(data) {
     const user = await userRepository.findByEmailWithPassword(cleanEmail)
 
   if (!user ) {
-    throw new AppError('Identifiants invalides.',401)
+    throw new AppError('Invalid credentials.', 401)
 
     }
   if ( !user.isActive) {
-    throw new AppError('You are not active !! .',401)
+    throw new AppError('Your account is inactive.', 401)
 
     }
     const passwordIsCorrect = await bcrypt.compare(password, user.password)
 
     if (!passwordIsCorrect) {
-      throw new AppError('Identifiants invalides.',401)
+      throw new AppError('Invalid credentials.', 401)
 
     }
 

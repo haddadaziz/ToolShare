@@ -5,7 +5,7 @@ const TOKEN_LIFETIME = '24h'
 function getSecret() {
     const secret = process.env.JWT_SECRET
     if (!secret) {
-        throw new Error('La variable JWT_SECRET est obligatoire.')
+        throw new Error('The JWT_SECRET environment variable is required.')
     }
     return secret
 }

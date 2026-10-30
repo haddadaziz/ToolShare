@@ -27,6 +27,7 @@ function desactive(id, status) {
 
 async function update(id, updateData) {
     return await User.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
+
 }
 
 module.exports = { create, countUsers, findByEmailWithPassword, findById, getAllUsers, desactive, update };

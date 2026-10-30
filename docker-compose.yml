@@ -5,12 +5,25 @@ services :
     container_name: toolshare_mongo
     restart: unless-stopped
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27018:27017"
     volumes:
       - mongo_data:/data/db
     command: ["--replSet", "rs0", "--bind_ip_all"]
     healthcheck:
-      test: mongosh --port 27017 --quiet --eval 'try { rs.status(); } catch (e) { rs.initiate({_id:"rs0",members:[{_id:0,host:"mongodb:27017"}]}); }'
+      test:
+        - CMD-SHELL
+        - >-
+          mongosh --port 27017 --quiet --eval 'try {
+            const status = rs.status();
+            quit(status.members.some(member => member.stateStr === "PRIMARY") ? 0 : 1);
+          } catch (error) {
+            if (error.codeName === "NotYetInitialized") {
+              rs.initiate({_id: "rs0", members: [{_id: 0, host: "mongodb:27017"}]});
+            } else {
+              print(error);
+            }
+            quit(1);
+          }'
       interval: 5s
       timeout: 5s
       retries: 5
